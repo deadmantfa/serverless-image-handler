@@ -13,6 +13,7 @@
 
 const ImageRequest = require('./image-request.js');
 const ImageHandler = require('./image-handler.js');
+const mime = require('mime-types');
 
 exports.handler = async (event) => {
     console.log(event);
@@ -24,7 +25,7 @@ exports.handler = async (event) => {
         const processedRequest = await imageHandler.process(request);
 
         const headers = getResponseHeaders();
-        headers["Content-Type"] = request.ContentType;
+        headers["Content-Type"] = mime.lookup(processedRequest);
         headers["Expires"] = request.Expires;
         headers["Last-Modified"] = request.LastModified;
         headers["Cache-Control"] = request.CacheControl;
