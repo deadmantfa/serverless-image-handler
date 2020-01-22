@@ -22,12 +22,18 @@ exports.handler = async (event) => {
         const request = await imageRequest.setup(event);
         console.log(request);
         const processedRequest = await imageHandler.process(request);
+
+        const headers = getResponseHeaders();
+        headers["Content-Type"] = request.ContentType;
+        headers["Expires"] = request.Expires;
+        headers["Last-Modified"] = request.LastModified;
+        headers["Cache-Control"] = request.CacheControl;
         const response = {
             "statusCode": 200,
-            "headers" : getResponseHeaders(),
+            "headers" : headers,
             "body": processedRequest,
             "isBase64Encoded": true
-        }
+        };
         return response;
     } catch (err) {
         console.log(err);
@@ -36,10 +42,10 @@ exports.handler = async (event) => {
             "headers" : getResponseHeaders(true),
             "body": JSON.stringify(err),
             "isBase64Encoded": false
-        }
+        };
         return response;
     }
-}
+};
 
 /**
  * Generates the appropriate set of response headers based on a success
@@ -52,8 +58,8 @@ const getResponseHeaders = (isErr) => {
         "Access-Control-Allow-Methods": "GET",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": true,
-        "Content-Type": "image"
-    }
+    };
+
     if (corsEnabled) {
         headers["Access-Control-Allow-Origin"] = process.env.CORS_ORIGIN;
     }
@@ -61,4 +67,4 @@ const getResponseHeaders = (isErr) => {
         headers["Content-Type"] = "application/json"
     }
     return headers;
-}
+};

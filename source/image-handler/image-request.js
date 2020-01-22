@@ -44,13 +44,25 @@ class ImageRequest {
         const s3 = new S3();
         const imageLocation = { Bucket: bucket, Key: key };
         const request = s3.getObject(imageLocation).promise();
+        if (originalImage.ContentType) {
+            this.ContentType = originalImage.ContentType;
+        }
+        if (originalImage.Expires) {
+            this.Expires = new Date(originalImage.Expires).toUTCString();
+        }
+        if (originalImage.LastModified) {
+            this.LastModified = new Date(originalImage.LastModified).toUTCString();
+        }
+        if (originalImage.CacheControl) {
+            this.CacheControl = originalImage.CacheControl;
+        }
         try {
             const originalImage = await request;
             return Promise.resolve(originalImage.Body);
         }
         catch(err) {
             return Promise.reject({
-                status: 500,
+                status: ("NoSuchKey" === err.code) ? 404 : 500,
                 code: err.code,
                 message: err.message
             })
